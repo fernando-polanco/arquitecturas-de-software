@@ -1,10 +1,25 @@
-HELP.md
+### MAVEN ###
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+
+### VARIABLES DE ENTORNO Y CREDENCIALES ###
+.env
+.env.*
+!.env.example
+
+application-local.properties
+application-secret.properties
+
+
+### LOGS ###
+*.log
+logs/
+
+
+### SPRING TOOL SUITE (STS) ###
 .apt_generated
 .classpath
 .factorypath
@@ -13,13 +28,15 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
+
+### INTELLIJ IDEA ###
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+
+### NETBEANS ###
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -29,8 +46,18 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+
+### VISUAL STUDIO CODE ###
 .vscode/
 
-### macOS ###
+
+### SISTEMA OPERATIVO ###
 .DS_Store
+Thumbs.db
+*~
+
+
+### JAVA ###
+*.class
+hs_err_pid*
+replay_pid*
