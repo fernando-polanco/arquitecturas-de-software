@@ -1,0 +1,21 @@
+body {
+    background-color: #f3f4f6;
+}
+
+.barra-superior {
+    background-color: #435d7d;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 6px 6px 0 0;
+}
+
+.tabla-contenedor {
+    background-color: white;
+    padding: 0 16px 8px 16px;
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.tabla-contenedor.p-4 {
+    padding: 24px;
+}
