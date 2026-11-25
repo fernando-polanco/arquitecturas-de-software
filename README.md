@@ -43,6 +43,8 @@ git clone URL_DEL_REPOSITORIO
 cd arquitecturas-de-software
 ```
 
+## Proceso de configuración y ejecución en Linux
+
 ### 2. Configurar MySQL
 
 Iniciar el servicio de MySQL:
@@ -109,9 +111,59 @@ chmod +x mvnw
 ./mvnw spring-boot:run
 ```
 
-Maven descargará automáticamente las dependencias necesarias e iniciará la aplicación.
+Nota: Maven descargará automáticamente las dependencias necesarias e iniciará la aplicación.
 
-### 5. Acceder a la aplicación
+## Configuración y ejecución en Windows
+
+### 1. Configurar MySQL
+
+Desde la terminal integrada del sistema en Intellij ejecutar:
+
+```bash
+Get-Service -Name *mysql*
+Start-Service -Name MySQL80
+```
+
+Nota: ajustar el nombre si tu instalación usa `MySQL` o `MySQL84` en lugar de `MySQL80`.
+
+Conéctate a MySQL como root:
+
+```bash
+mysql -u root -p
+```
+
+Dentro de la consola mysql>, crea la base de datos proyecto_crud, el usuario app_crud y asígnale privilegios (sustituye TU_CONTRASENA por tu contraseña local):
+
+```bash
+CREATE DATABASE IF NOT EXISTS proyecto_crud;
+CREATE USER IF NOT EXISTS 'app_crud'@'localhost' IDENTIFIED BY 'TU_CONTRASENA';
+GRANT ALL PRIVILEGES ON proyecto_crud.* TO 'app_crud'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+Nota: deben aparecer mensajes de `Ok` para confirmar que todo salió bien.
+
+### 2. Configurar las variables de entorno
+
+```bash
+$env:DB_USERNAME="app_crud"
+$env:DB_PASSWORD="TU_CONTRASENA"
+```
+
+Nota: sustituir `TU_CONTRASENA` por la contraseña configurada anteriormente.
+
+### 3. Ejecutar el proyecto
+
+Inicia la aplicación Spring Boot desde la raíz del repositorio:
+
+```bash
+.\mvnw.cmd spring-boot:run
+```
+
+Nota: Maven descargará automáticamente las dependencias necesarias e iniciará la aplicación.
+
+## Acceder a la aplicación
 
 Una vez iniciada correctamente, acceder desde el navegador:
 
