@@ -122,9 +122,11 @@ body {
 }
 
 .busqueda-form {
-    background-color: white;
+    background-color: #DCDCDC;
     padding: 18px 20px;
-    border-bottom: 1px solid #e5e7eb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin-bottom: 20px;
 }
 
 .busqueda-contenedor {
