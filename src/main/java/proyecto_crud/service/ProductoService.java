@@ -9,6 +9,8 @@ public interface ProductoService {
 
     List<Producto> listar();
 
+    List<Producto> buscarPorNombre(String nombre);
+
     Optional<Producto> buscarPorId(Long id);
 
     Producto guardar(Producto producto);
