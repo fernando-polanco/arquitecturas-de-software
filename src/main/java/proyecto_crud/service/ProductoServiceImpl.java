@@ -25,6 +25,11 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
+    public List<Producto> buscarPorNombre(String nombre) {
+        return repository.findByNombreContainingIgnoreCase(nombre);
+    }
+
+    @Override
     public Optional<Producto> buscarPorId(Long id) {
         return repository.findById(id);
     }

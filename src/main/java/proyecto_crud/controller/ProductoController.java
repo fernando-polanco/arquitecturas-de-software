@@ -33,8 +33,20 @@ public class ProductoController {
     }
 
     @GetMapping("/productos")
-    public String listar(Model model) {
-        model.addAttribute("productos", service.listar());
+    public String listar(
+            @RequestParam(name = "nombre", required = false) String nombre,
+            Model model) {
+
+        if (nombre == null || nombre.isBlank()) {
+            model.addAttribute("productos", service.listar());
+        } else {
+            nombre = nombre.trim();
+            model.addAttribute("productos", service.buscarPorNombre(nombre));
+        }
+
+        // Mantener el producto buscado en el input
+        model.addAttribute("nombreBuscado", nombre);
+
         return "productos/lista";
     }
 

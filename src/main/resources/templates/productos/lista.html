@@ -13,6 +13,26 @@
     <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
+    <form th:action="@{/productos}" method="get" class="busqueda-form">
+        <div class="busqueda-contenedor">
+            <input
+                    type="search"
+                    id="buscarNombre"
+                    name="nombre"
+                    class="busqueda-input"
+                    placeholder="Buscar producto"
+                    th:value="${nombreBuscado}"
+                    autocomplete="off"
+            >
+            <button type="submit" class="btn-buscar">
+                Buscar
+            </button>
+
+            <a th:href="@{/productos}" class="btn-limpiar">
+                Limpiar
+            </a>
+        </div>
+    </form>
 
     <form id="formLista" th:action="@{/productos/eliminar-seleccionados}" method="post">
 
