@@ -77,3 +77,21 @@ modal.addEventListener('click', (e) => {
         cerrarModal();
     }
 });
+
+const mensajes = document.querySelectorAll(
+    '.alert-success, .alert-danger'
+);
+
+mensajes.forEach((mensaje) => {
+    // Activar la transición de Bootstrap
+    mensaje.classList.add('fade', 'show');
+
+    setTimeout(() => {
+        // Iniciar desaparición
+        mensaje.classList.remove('show');
+        // Eliminar del HTML después de la transición
+        setTimeout(() => {
+            mensaje.remove();
+        }, 200);
+    }, 3000);
+});
