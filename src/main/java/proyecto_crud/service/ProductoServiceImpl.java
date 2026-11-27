@@ -3,6 +3,8 @@ package proyecto_crud.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import proyecto_crud.model.Producto;
@@ -25,8 +27,18 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
+    public Page<Producto> listarPaginado(Pageable pageable) {
+        return repository.findAll(pageable);
+    }
+
+    @Override
     public List<Producto> buscarPorNombre(String nombre) {
         return repository.findByNombreContainingIgnoreCase(nombre);
+    }
+
+    @Override
+    public Page<Producto> buscarPorNombrePaginado(String nombre, Pageable pageable) {
+        return repository.findByNombreContainingIgnoreCase(nombre, pageable);
     }
 
     @Override
