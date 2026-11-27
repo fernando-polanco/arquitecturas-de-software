@@ -1,11 +1,13 @@
 const seleccionarTodos = document.getElementById('seleccionarTodos');
 const casillas = document.querySelectorAll('.casilla-fila');
 
-seleccionarTodos.addEventListener('change', () => {
-    casillas.forEach((c) => {
-        c.checked = seleccionarTodos.checked;
+if (seleccionarTodos) {
+    seleccionarTodos.addEventListener('change', () => {
+        casillas.forEach((c) => {
+            c.checked = seleccionarTodos.checked;
+        });
     });
-});
+}
 
 const modal = document.getElementById('modalConfirmacion');
 const mensajeModal = document.getElementById('modalMensaje');
@@ -44,39 +46,47 @@ document.querySelectorAll('.btn-eliminar-uno').forEach((boton) => {
     });
 });
 
-btnEliminarSeleccionados.addEventListener('click', (e) => {
-    const marcadas = document.querySelectorAll(
-        '.casilla-fila:checked'
-    ).length;
+if (btnEliminarSeleccionados) {
+    btnEliminarSeleccionados.addEventListener('click', (e) => {
+        const marcadas = document.querySelectorAll(
+            '.casilla-fila:checked'
+        ).length;
 
-    if (marcadas > 0) {
-        e.preventDefault();
-        abrirModal(
-            btnEliminarSeleccionados,
-            '¿Seguro que quieres eliminar ' +
-            marcadas + ' producto(s) seleccionado(s)?'
-        );
-    }
-});
+        if (marcadas > 0) {
+            e.preventDefault();
+            abrirModal(
+                btnEliminarSeleccionados,
+                '¿Seguro que quieres eliminar ' +
+                marcadas + ' producto(s) seleccionado(s)?'
+            );
+        }
+    });
+}
 
-btnCancelar.addEventListener('click', () => {
-    cerrarModal();
-});
+if (btnCancelar) {
+    btnCancelar.addEventListener('click', () => {
+        cerrarModal();
+    });
+}
 
-btnConfirmar.addEventListener('click', () => {
-    if (botonPendiente) {
-        // Ejecutar el formulario utilizando
-        // el botón original como submitter.
-        formLista.requestSubmit(botonPendiente);
-    }
-});
+if (btnConfirmar) {
+    btnConfirmar.addEventListener('click', () => {
+        if (botonPendiente) {
+            // Ejecutar el formulario utilizando
+            // el botón original como submitter.
+            formLista.requestSubmit(botonPendiente);
+        }
+    });
+}
 
 // Cerrar si se da clic afuera del modal
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-        cerrarModal();
-    }
-});
+if (modal) {
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            cerrarModal();
+        }
+    });
+}
 
 const mensajes = document.querySelectorAll(
     '.alert-success, .alert-danger'
@@ -95,3 +105,15 @@ mensajes.forEach((mensaje) => {
         }, 200);
     }, 3000);
 });
+
+const inputPageSize = document.getElementById('pageSize');
+
+if (inputPageSize) {
+    inputPageSize.addEventListener('invalid', () => {
+        inputPageSize.setCustomValidity('El tamaño de página debe ser un entero entre 1 y 100.');
+    });
+
+    inputPageSize.addEventListener('input', () => {
+        inputPageSize.setCustomValidity('');
+    });
+}
