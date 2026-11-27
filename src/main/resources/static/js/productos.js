@@ -106,14 +106,14 @@ mensajes.forEach((mensaje) => {
     }, 3000);
 });
 
-const inputPageSize = document.getElementById('pageSize');
+const campoTamanoPagina = document.getElementById('tamanoPagina');
 
-if (inputPageSize) {
-    inputPageSize.addEventListener('invalid', () => {
-        inputPageSize.setCustomValidity('El tamaño de página debe ser un entero entre 1 y 100.');
+if (campoTamanoPagina) {
+    campoTamanoPagina.addEventListener('invalid', () => {
+        campoTamanoPagina.setCustomValidity('El tamaño de página debe ser un entero entre 1 y 100.');
     });
 
-    inputPageSize.addEventListener('input', () => {
-        inputPageSize.setCustomValidity('');
+    campoTamanoPagina.addEventListener('input', () => {
+        campoTamanoPagina.setCustomValidity('');
     });
 }

@@ -39,42 +39,42 @@ public class ProductoController {
     @GetMapping("/productos")
     public String listar(
             @RequestParam(name = "nombre", required = false) String nombre,
-            @RequestParam(name = "page", required = false) String pageParam,
-            @RequestParam(name = "size", required = false) String sizeParam,
+            @RequestParam(name = "page", required = false) String paginaTexto,
+            @RequestParam(name = "size", required = false) String tamanoTexto,
             Model model) {
 
-        int requestedPage = PaginationHelper.parsePage(pageParam);
-        int pageSize = PaginationHelper.parseSize(sizeParam);
+        int paginaSolicitada = PaginacionUtil.obtenerNumeroPagina(paginaTexto);
+        int tamanoPagina = PaginacionUtil.obtenerTamanoPagina(tamanoTexto);
         String nombreBuscado = (nombre == null || nombre.isBlank()) ? null : nombre.trim();
 
-        Page<Producto> productosPage = consultarPagina(nombreBuscado, requestedPage - 1, pageSize);
+        Page<Producto> paginaProductos = consultarPagina(nombreBuscado, paginaSolicitada - 1, tamanoPagina);
 
-        if (productosPage.getTotalPages() > 0 && requestedPage > productosPage.getTotalPages()) {
-            requestedPage = productosPage.getTotalPages();
-            productosPage = consultarPagina(nombreBuscado, requestedPage - 1, pageSize);
+        if (paginaProductos.getTotalPages() > 0 && paginaSolicitada > paginaProductos.getTotalPages()) {
+            paginaSolicitada = paginaProductos.getTotalPages();
+            paginaProductos = consultarPagina(nombreBuscado, paginaSolicitada - 1, tamanoPagina);
         }
 
-        int totalPages = productosPage.getTotalPages();
-        long totalElements = productosPage.getTotalElements();
-        int currentPage = totalPages == 0 ? 0 : productosPage.getNumber() + 1;
-        long startItem = totalElements == 0 ? 0 : (long) productosPage.getNumber() * pageSize + 1;
-        long endItem = totalElements == 0 ? 0 : startItem + productosPage.getNumberOfElements() - 1;
+        int totalPaginas = paginaProductos.getTotalPages();
+        long totalRegistros = paginaProductos.getTotalElements();
+        int paginaActual = totalPaginas == 0 ? 0 : paginaProductos.getNumber() + 1;
+        long registroInicio = totalRegistros == 0 ? 0 : (long) paginaProductos.getNumber() * tamanoPagina + 1;
+        long registroFin = totalRegistros == 0 ? 0 : registroInicio + paginaProductos.getNumberOfElements() - 1;
 
-        model.addAttribute("productos", productosPage.getContent());
+        model.addAttribute("productos", paginaProductos.getContent());
         model.addAttribute("nombreBuscado", nombreBuscado);
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("totalElements", totalElements);
-        model.addAttribute("pageSize", pageSize);
-        model.addAttribute("minPageSize", PaginationHelper.MIN_PAGE_SIZE);
-        model.addAttribute("maxPageSize", PaginationHelper.MAX_PAGE_SIZE);
-        model.addAttribute("hasPrevious", productosPage.hasPrevious());
-        model.addAttribute("hasNext", productosPage.hasNext());
-        model.addAttribute("isFirst", totalPages == 0 || productosPage.isFirst());
-        model.addAttribute("isLast", totalPages == 0 || productosPage.isLast());
-        model.addAttribute("startItem", startItem);
-        model.addAttribute("endItem", endItem);
-        model.addAttribute("pageItems", PaginationHelper.buildEllipsisPages(currentPage, totalPages));
+        model.addAttribute("paginaActual", paginaActual);
+        model.addAttribute("totalPaginas", totalPaginas);
+        model.addAttribute("totalRegistros", totalRegistros);
+        model.addAttribute("tamanoPagina", tamanoPagina);
+        model.addAttribute("tamanoMinimo", PaginacionUtil.TAMANO_MINIMO);
+        model.addAttribute("tamanoMaximo", PaginacionUtil.TAMANO_MAXIMO);
+        model.addAttribute("tieneAnterior", paginaProductos.hasPrevious());
+        model.addAttribute("tieneSiguiente", paginaProductos.hasNext());
+        model.addAttribute("esPrimera", totalPaginas == 0 || paginaProductos.isFirst());
+        model.addAttribute("esUltima", totalPaginas == 0 || paginaProductos.isLast());
+        model.addAttribute("registroInicio", registroInicio);
+        model.addAttribute("registroFin", registroFin);
+        model.addAttribute("elementosPagina", PaginacionUtil.construirPaginasConElipsis(paginaActual, totalPaginas));
 
         return "productos/lista";
     }
@@ -139,8 +139,8 @@ public class ProductoController {
 
     @PostMapping("/productos/eliminar/{id}")
     public String eliminar(@PathVariable Long id,
-                           @RequestParam(name = "page", required = false) String pageParam,
-                           @RequestParam(name = "size", required = false) String sizeParam,
+                           @RequestParam(name = "page", required = false) String paginaTexto,
+                           @RequestParam(name = "size", required = false) String tamanoTexto,
                            @RequestParam(name = "nombre", required = false) String nombre,
                            RedirectAttributes redirect) {
         if (service.eliminar(id)) {
@@ -148,44 +148,44 @@ public class ProductoController {
         } else {
             redirect.addFlashAttribute("error", "El producto no existe");
         }
-        agregarParametrosPaginacion(redirect, pageParam, sizeParam, nombre);
+        agregarParametrosPaginacion(redirect, paginaTexto, tamanoTexto, nombre);
         return "redirect:/productos";
     }
 
     @PostMapping("/productos/eliminar-seleccionados")
     public String eliminarSeleccionados(@RequestParam(name = "ids", required = false) List<Long> ids,
-                                        @RequestParam(name = "page", required = false) String pageParam,
-                                        @RequestParam(name = "size", required = false) String sizeParam,
+                                        @RequestParam(name = "page", required = false) String paginaTexto,
+                                        @RequestParam(name = "size", required = false) String tamanoTexto,
                                         @RequestParam(name = "nombre", required = false) String nombre,
                                         RedirectAttributes redirect) {
         if (ids == null || ids.isEmpty()) {
             redirect.addFlashAttribute("error", "No seleccionaste ningún producto");
-            agregarParametrosPaginacion(redirect, pageParam, sizeParam, nombre);
+            agregarParametrosPaginacion(redirect, paginaTexto, tamanoTexto, nombre);
             return "redirect:/productos";
         }
         int eliminados = service.eliminarVarios(ids);
         redirect.addFlashAttribute("exito", eliminados + " producto(s) eliminado(s)");
-        agregarParametrosPaginacion(redirect, pageParam, sizeParam, nombre);
+        agregarParametrosPaginacion(redirect, paginaTexto, tamanoTexto, nombre);
         return "redirect:/productos";
     }
 
-    private Page<Producto> consultarPagina(String nombreBuscado, int pageIndex, int pageSize) {
-        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("id").ascending());
+    private Page<Producto> consultarPagina(String nombreBuscado, int indicePagina, int tamanoPagina) {
+        Pageable paginacion = PageRequest.of(indicePagina, tamanoPagina, Sort.by("id").ascending());
         if (nombreBuscado == null) {
-            return service.listarPaginado(pageable);
+            return service.listarPaginado(paginacion);
         }
-        return service.buscarPorNombrePaginado(nombreBuscado, pageable);
+        return service.buscarPorNombrePaginado(nombreBuscado, paginacion);
     }
 
     private void agregarParametrosPaginacion(RedirectAttributes redirect,
-                                             String pageParam,
-                                             String sizeParam,
+                                             String paginaTexto,
+                                             String tamanoTexto,
                                              String nombre) {
-        if (pageParam != null && !pageParam.isBlank()) {
-            redirect.addAttribute("page", PaginationHelper.parsePage(pageParam));
+        if (paginaTexto != null && !paginaTexto.isBlank()) {
+            redirect.addAttribute("page", PaginacionUtil.obtenerNumeroPagina(paginaTexto));
         }
-        if (sizeParam != null && !sizeParam.isBlank()) {
-            redirect.addAttribute("size", PaginationHelper.parseSize(sizeParam));
+        if (tamanoTexto != null && !tamanoTexto.isBlank()) {
+            redirect.addAttribute("size", PaginacionUtil.obtenerTamanoPagina(tamanoTexto));
         }
         if (nombre != null && !nombre.isBlank()) {
             redirect.addAttribute("nombre", nombre.trim());

@@ -22,23 +22,13 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-    public List<Producto> listar() {
-        return repository.findAll();
+    public Page<Producto> listarPaginado(Pageable paginacion) {
+        return repository.findAll(paginacion);
     }
 
     @Override
-    public Page<Producto> listarPaginado(Pageable pageable) {
-        return repository.findAll(pageable);
-    }
-
-    @Override
-    public List<Producto> buscarPorNombre(String nombre) {
-        return repository.findByNombreContainingIgnoreCase(nombre);
-    }
-
-    @Override
-    public Page<Producto> buscarPorNombrePaginado(String nombre, Pageable pageable) {
-        return repository.findByNombreContainingIgnoreCase(nombre, pageable);
+    public Page<Producto> buscarPorNombrePaginado(String nombre, Pageable paginacion) {
+        return repository.findByNombreContainingIgnoreCase(nombre, paginacion);
     }
 
     @Override

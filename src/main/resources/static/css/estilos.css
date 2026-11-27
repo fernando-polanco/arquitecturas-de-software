@@ -44,13 +44,13 @@ body {
     gap: 16px;
 }
 
-.page-size-form {
+.tamano-pagina-form {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.page-size-input {
+.tamano-pagina-input {
     width: 74px;
 }
 
