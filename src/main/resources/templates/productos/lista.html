@@ -16,7 +16,7 @@
     <form th:action="@{/productos}" method="get" class="busqueda-form">
         <div class="busqueda-contenedor">
             <input type="hidden" name="page" value="1">
-            <input type="hidden" name="size" th:value="${pageSize}">
+            <input type="hidden" name="size" th:value="${tamanoPagina}">
             <input
                     type="search"
                     id="buscarNombre"
@@ -30,15 +30,15 @@
                 Buscar
             </button>
 
-            <a th:href="@{/productos(size=${pageSize})}" class="btn-limpiar">
+            <a th:href="@{/productos(size=${tamanoPagina})}" class="btn-limpiar">
                 Limpiar
             </a>
         </div>
     </form>
 
     <form id="formLista" th:action="@{/productos/eliminar-seleccionados}" method="post">
-        <input type="hidden" name="page" th:value="${currentPage > 0 ? currentPage : 1}">
-        <input type="hidden" name="size" th:value="${pageSize}">
+        <input type="hidden" name="page" th:value="${paginaActual > 0 ? paginaActual : 1}">
+        <input type="hidden" name="size" th:value="${tamanoPagina}">
         <input type="hidden" name="nombre" th:if="${nombreBuscado != null}" th:value="${nombreBuscado}">
 
         <div class="barra-superior d-flex justify-content-between align-items-center">
@@ -93,73 +93,73 @@
     <div class="paginacion-contenedor">
         <div class="paginacion-resumen">
             <div class="paginacion-info text-muted small">
-                <span th:if="${totalElements > 0}"
-                      th:text="|Mostrando ${startItem}–${endItem} de ${totalElements} producto(s) · Página ${currentPage} de ${totalPages}|">
+                <span th:if="${totalRegistros > 0}"
+                      th:text="|Mostrando ${registroInicio}–${registroFin} de ${totalRegistros} producto(s) · Página ${paginaActual} de ${totalPaginas}|">
                 </span>
-                <span th:if="${totalElements == 0}">
+                <span th:if="${totalRegistros == 0}">
                     Mostrando 0 de 0 productos · Página 0 de 0
                 </span>
             </div>
 
-            <form id="formPageSize" th:action="@{/productos}" method="get" class="page-size-form">
+            <form id="formTamanoPagina" th:action="@{/productos}" method="get" class="tamano-pagina-form">
                 <input type="hidden" name="page" value="1">
                 <input type="hidden" name="nombre" th:if="${nombreBuscado != null}" th:value="${nombreBuscado}">
-                <label for="pageSize" class="form-label m-0 small text-muted">Page size:</label>
+                <label for="tamanoPagina" class="form-label m-0 small text-muted">Page size:</label>
                 <input type="number"
-                       id="pageSize"
+                       id="tamanoPagina"
                        name="size"
-                       class="form-control form-control-sm page-size-input"
-                       th:min="${minPageSize}"
-                       th:max="${maxPageSize}"
+                       class="form-control form-control-sm tamano-pagina-input"
+                       th:min="${tamanoMinimo}"
+                       th:max="${tamanoMaximo}"
                        step="1"
                        required
-                       th:value="${pageSize}">
+                       th:value="${tamanoPagina}">
                 <button type="submit" class="btn btn-sm btn-outline-secondary">Aplicar</button>
             </form>
         </div>
 
         <nav aria-label="Paginación de productos">
             <ul class="pagination pagination-sm mb-0">
-                <li class="page-item" th:classappend="${isFirst} ? 'disabled'">
+                <li class="page-item" th:classappend="${esPrimera} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/productos(page=1, size=${pageSize}, nombre=${nombreBuscado})}"
-                       th:tabindex="${isFirst} ? '-1' : null"
-                       th:aria-disabled="${isFirst} ? 'true' : null"
+                       th:href="@{/productos(page=1, size=${tamanoPagina}, nombre=${nombreBuscado})}"
+                       th:tabindex="${esPrimera} ? '-1' : null"
+                       th:aria-disabled="${esPrimera} ? 'true' : null"
                        aria-label="Primera página">First</a>
                 </li>
 
-                <li class="page-item" th:classappend="${!hasPrevious} ? 'disabled'">
+                <li class="page-item" th:classappend="${!tieneAnterior} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/productos(page=${currentPage > 1 ? currentPage - 1 : 1}, size=${pageSize}, nombre=${nombreBuscado})}"
-                       th:tabindex="${!hasPrevious} ? '-1' : null"
-                       th:aria-disabled="${!hasPrevious} ? 'true' : null"
+                       th:href="@{/productos(page=${paginaActual > 1 ? paginaActual - 1 : 1}, size=${tamanoPagina}, nombre=${nombreBuscado})}"
+                       th:tabindex="${!tieneAnterior} ? '-1' : null"
+                       th:aria-disabled="${!tieneAnterior} ? 'true' : null"
                        aria-label="Página anterior">Previous</a>
                 </li>
 
                 <li class="page-item"
-                    th:each="item : ${pageItems}"
-                    th:classappend="${item.ellipsis} ? 'disabled' : (${item.active} ? 'active' : '')">
-                    <span class="page-link" th:if="${item.ellipsis}" aria-hidden="true">&hellip;</span>
+                    th:each="elemento : ${elementosPagina}"
+                    th:classappend="${elemento.elipsis} ? 'disabled' : (${elemento.activo} ? 'active' : '')">
+                    <span class="page-link" th:if="${elemento.elipsis}" aria-hidden="true">&hellip;</span>
                     <a class="page-link"
-                       th:if="${!item.ellipsis}"
-                       th:href="@{/productos(page=${item.pageNumber}, size=${pageSize}, nombre=${nombreBuscado})}"
-                       th:text="${item.pageNumber}"
-                       th:aria-current="${item.active} ? 'page' : null">1</a>
+                       th:if="${!elemento.elipsis}"
+                       th:href="@{/productos(page=${elemento.numeroPagina}, size=${tamanoPagina}, nombre=${nombreBuscado})}"
+                       th:text="${elemento.numeroPagina}"
+                       th:aria-current="${elemento.activo} ? 'page' : null">1</a>
                 </li>
 
-                <li class="page-item" th:classappend="${!hasNext} ? 'disabled'">
+                <li class="page-item" th:classappend="${!tieneSiguiente} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/productos(page=${hasNext ? currentPage + 1 : totalPages}, size=${pageSize}, nombre=${nombreBuscado})}"
-                       th:tabindex="${!hasNext} ? '-1' : null"
-                       th:aria-disabled="${!hasNext} ? 'true' : null"
+                       th:href="@{/productos(page=${tieneSiguiente ? paginaActual + 1 : totalPaginas}, size=${tamanoPagina}, nombre=${nombreBuscado})}"
+                       th:tabindex="${!tieneSiguiente} ? '-1' : null"
+                       th:aria-disabled="${!tieneSiguiente} ? 'true' : null"
                        aria-label="Página siguiente">Next</a>
                 </li>
 
-                <li class="page-item" th:classappend="${isLast} ? 'disabled'">
+                <li class="page-item" th:classappend="${esUltima} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/productos(page=${totalPages > 0 ? totalPages : 1}, size=${pageSize}, nombre=${nombreBuscado})}"
-                       th:tabindex="${isLast} ? '-1' : null"
-                       th:aria-disabled="${isLast} ? 'true' : null"
+                       th:href="@{/productos(page=${totalPaginas > 0 ? totalPaginas : 1}, size=${tamanoPagina}, nombre=${nombreBuscado})}"
+                       th:tabindex="${esUltima} ? '-1' : null"
+                       th:aria-disabled="${esUltima} ? 'true' : null"
                        aria-label="Última página">Last</a>
                 </li>
             </ul>

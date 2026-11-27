@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @ExtendWith(MockitoExtension.class)
-class ProductoControllerPaginationTest {
+class ProductoControllerPaginacionTest {
 
     @Mock
     private ProductoService service;
@@ -47,39 +47,39 @@ class ProductoControllerPaginationTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setUp() {
-        FileTemplateResolver resolver = new FileTemplateResolver();
-        resolver.setPrefix("src/main/resources/templates/");
-        resolver.setSuffix(".html");
-        resolver.setTemplateMode(TemplateMode.HTML);
-        resolver.setCharacterEncoding("UTF-8");
+    void configurar() {
+        FileTemplateResolver resolvedor = new FileTemplateResolver();
+        resolvedor.setPrefix("src/main/resources/templates/");
+        resolvedor.setSuffix(".html");
+        resolvedor.setTemplateMode(TemplateMode.HTML);
+        resolvedor.setCharacterEncoding("UTF-8");
 
-        SpringTemplateEngine engine = new SpringTemplateEngine();
-        engine.setTemplateResolver(resolver);
+        SpringTemplateEngine motor = new SpringTemplateEngine();
+        motor.setTemplateResolver(resolvedor);
 
-        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-        viewResolver.setTemplateEngine(engine);
-        viewResolver.setCharacterEncoding("UTF-8");
+        ThymeleafViewResolver resolvedorVistas = new ThymeleafViewResolver();
+        resolvedorVistas.setTemplateEngine(motor);
+        resolvedorVistas.setCharacterEncoding("UTF-8");
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new ProductoController(service))
-                .setViewResolvers(viewResolver)
+                .setViewResolvers(resolvedorVistas)
                 .build();
     }
 
     @Test
-    void listarUsesDefaultPageSizeFiveAndRendersControls() throws Exception {
-        List<Producto> items = List.of(producto(1L, "Teclado"), producto(2L, "Mouse"));
-        Page<Producto> page = new PageImpl<>(items, PageRequest.of(0, 5, Sort.by("id").ascending()), 42);
-        when(service.listarPaginado(any(Pageable.class))).thenReturn(page);
+    void listarUsaTamanoCincoPorDefectoYRenderizaControles() throws Exception {
+        List<Producto> elementos = List.of(crearProducto(1L, "Teclado"), crearProducto(2L, "Mouse"));
+        Page<Producto> pagina = new PageImpl<>(elementos, PageRequest.of(0, 5, Sort.by("id").ascending()), 42);
+        when(service.listarPaginado(any(Pageable.class))).thenReturn(pagina);
 
         mockMvc.perform(get("/productos"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("productos/lista"))
-                .andExpect(model().attribute("currentPage", 1))
-                .andExpect(model().attribute("pageSize", 5))
-                .andExpect(model().attribute("totalPages", 9))
-                .andExpect(model().attribute("totalElements", 42L))
+                .andExpect(model().attribute("paginaActual", 1))
+                .andExpect(model().attribute("tamanoPagina", 5))
+                .andExpect(model().attribute("totalPaginas", 9))
+                .andExpect(model().attribute("totalRegistros", 42L))
                 .andExpect(content().string(containsString("Página 1 de 9")))
                 .andExpect(content().string(containsString("First")))
                 .andExpect(content().string(containsString("Previous")))
@@ -87,24 +87,24 @@ class ProductoControllerPaginationTest {
                 .andExpect(content().string(containsString("Last")))
                 .andExpect(content().string(containsString("&hellip;")));
 
-        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(service).listarPaginado(pageableCaptor.capture());
-        assertThat(pageableCaptor.getValue().getPageNumber()).isZero();
-        assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(5);
+        ArgumentCaptor<Pageable> captorPaginacion = ArgumentCaptor.forClass(Pageable.class);
+        verify(service).listarPaginado(captorPaginacion.capture());
+        assertThat(captorPaginacion.getValue().getPageNumber()).isZero();
+        assertThat(captorPaginacion.getValue().getPageSize()).isEqualTo(5);
     }
 
     @Test
-    void listarClampsCustomPageSizeWithinOneAndHundred() throws Exception {
-        Page<Producto> pageMax = new PageImpl<>(List.of(), PageRequest.of(0, 100), 0);
-        when(service.listarPaginado(any(Pageable.class))).thenReturn(pageMax);
+    void listarLimitaTamanoPersonalizadoEntreUnoYCien() throws Exception {
+        Page<Producto> paginaVacia = new PageImpl<>(List.of(), PageRequest.of(0, 100), 0);
+        when(service.listarPaginado(any(Pageable.class))).thenReturn(paginaVacia);
 
         mockMvc.perform(get("/productos").param("size", "250"))
                 .andExpect(status().isOk())
-                .andExpect(model().attribute("pageSize", 100));
+                .andExpect(model().attribute("tamanoPagina", 100));
 
         mockMvc.perform(get("/productos").param("size", "0"))
                 .andExpect(status().isOk())
-                .andExpect(model().attribute("pageSize", 1));
+                .andExpect(model().attribute("tamanoPagina", 1));
 
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(service, times(2)).listarPaginado(captor.capture());
@@ -113,21 +113,21 @@ class ProductoControllerPaginationTest {
     }
 
     @Test
-    void listarPreservesSearchFilterAndAdjustsOutOfRangePage() throws Exception {
-        Page<Producto> emptyPage10 = new PageImpl<>(List.of(), PageRequest.of(9, 10), 25);
-        Page<Producto> lastValidPage = new PageImpl<>(List.of(producto(21L, "Laptop")), PageRequest.of(2, 10), 25);
+    void listarConservaFiltroYAjustaPaginaFueraDeRango() throws Exception {
+        Page<Producto> paginaDiezVacia = new PageImpl<>(List.of(), PageRequest.of(9, 10), 25);
+        Page<Producto> ultimaPaginaValida = new PageImpl<>(List.of(crearProducto(21L, "Laptop")), PageRequest.of(2, 10), 25);
 
         when(service.buscarPorNombrePaginado(eq("Laptop"), any(Pageable.class)))
-                .thenReturn(emptyPage10)
-                .thenReturn(lastValidPage);
+                .thenReturn(paginaDiezVacia)
+                .thenReturn(ultimaPaginaValida);
 
         mockMvc.perform(get("/productos")
                         .param("nombre", " Laptop ")
                         .param("page", "10")
                         .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(model().attribute("currentPage", 3))
-                .andExpect(model().attribute("totalPages", 3))
+                .andExpect(model().attribute("paginaActual", 3))
+                .andExpect(model().attribute("totalPaginas", 3))
                 .andExpect(model().attribute("nombreBuscado", "Laptop"))
                 .andExpect(content().string(containsString("Página 3 de 3")));
 
@@ -135,7 +135,7 @@ class ProductoControllerPaginationTest {
     }
 
     @Test
-    void eliminarPreservesPaginationStateOnRedirect() throws Exception {
+    void eliminarConservaEstadoDePaginacionAlRedirigir() throws Exception {
         when(service.eliminar(5L)).thenReturn(true);
 
         mockMvc.perform(post("/productos/eliminar/5")
@@ -146,13 +146,13 @@ class ProductoControllerPaginationTest {
                 .andExpect(redirectedUrl("/productos?page=2&size=15&nombre=Monitor"));
     }
 
-    private Producto producto(Long id, String nombre) {
-        Producto p = new Producto();
-        p.setId(id);
-        p.setNombre(nombre);
-        p.setDescripcion("Descripción " + nombre);
-        p.setPrecio(100.0);
-        p.setStock(10);
-        return p;
+    private Producto crearProducto(Long id, String nombre) {
+        Producto producto = new Producto();
+        producto.setId(id);
+        producto.setNombre(nombre);
+        producto.setDescripcion("Descripción " + nombre);
+        producto.setPrecio(100.0);
+        producto.setStock(10);
+        return producto;
     }
 }

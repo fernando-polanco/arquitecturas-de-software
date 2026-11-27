@@ -10,13 +10,9 @@ import proyecto_crud.model.Producto;
 
 public interface ProductoService {
 
-    List<Producto> listar();
+    Page<Producto> listarPaginado(Pageable paginacion);
 
-    Page<Producto> listarPaginado(Pageable pageable);
-
-    List<Producto> buscarPorNombre(String nombre);
-
-    Page<Producto> buscarPorNombrePaginado(String nombre, Pageable pageable);
+    Page<Producto> buscarPorNombrePaginado(String nombre, Pageable paginacion);
 
     Optional<Producto> buscarPorId(Long id);
 
