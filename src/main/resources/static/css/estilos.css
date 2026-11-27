@@ -16,8 +16,60 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
+.tabla-contenedor.tabla-con-paginacion {
+    border-radius: 0;
+}
+
 .tabla-contenedor.p-4 {
     padding: 24px;
+}
+
+.paginacion-contenedor {
+    background-color: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 14px 16px;
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.paginacion-resumen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+}
+
+.page-size-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-size-input {
+    width: 74px;
+}
+
+.paginacion-contenedor .page-link {
+    color: #435d7d;
+}
+
+.paginacion-contenedor .page-item.active .page-link {
+    background-color: #435d7d;
+    border-color: #435d7d;
+    color: white;
+}
+
+.paginacion-contenedor .page-link:hover {
+    color: #344a63;
+}
+
+.paginacion-contenedor .page-item.active .page-link:hover {
+    color: white;
 }
 
 
@@ -199,5 +251,10 @@ body {
     .btn-limpiar {
         flex: 1;
         text-align: center;
+    }
+
+    .paginacion-contenedor {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
