@@ -16,6 +16,8 @@ public interface ProductoService {
 
     Optional<Producto> buscarPorId(Long id);
 
+    Producto obtenerPorId(Long id);
+
     Producto guardar(Producto producto);
 
     boolean eliminar(Long id);
