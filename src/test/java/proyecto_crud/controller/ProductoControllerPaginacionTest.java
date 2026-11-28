@@ -38,14 +38,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+/**
+ * Pruebas del controlador de productos centradas en la paginación, la búsqueda, la representación de la vista y la conservación de parámetros al eliminar.
+ */
 @ExtendWith(MockitoExtension.class)
 class ProductoControllerPaginacionTest {
 
+    /**
+     * Servicio de productos simulado para aislar el controlador durante las pruebas.
+     */
     @Mock
     private ProductoService service;
 
+    /**
+     * Cliente de pruebas MVC que permite ejecutar solicitudes HTTP simuladas contra el controlador.
+     */
     private MockMvc mockMvc;
 
+    /**
+     * Configura Thymeleaf y MockMvc para probar el controlador sin iniciar un servidor web completo.
+     */
     @BeforeEach
     void configurar() {
         FileTemplateResolver resolvedor = new FileTemplateResolver();
@@ -67,6 +79,9 @@ class ProductoControllerPaginacionTest {
                 .build();
     }
 
+    /**
+     * Verifica el tamaño de página predeterminado, los datos del modelo y los controles de navegación renderizados.
+     */
     @Test
     void listarUsaTamanoCincoPorDefectoYRenderizaControles() throws Exception {
         List<Producto> elementos = List.of(crearProducto(1L, "Teclado"), crearProducto(2L, "Mouse"));
@@ -93,6 +108,9 @@ class ProductoControllerPaginacionTest {
         assertThat(captorPaginacion.getValue().getPageSize()).isEqualTo(5);
     }
 
+    /**
+     * Verifica que el controlador limita los tamaños de página personalizados al intervalo permitido.
+     */
     @Test
     void listarLimitaTamanoPersonalizadoEntreUnoYCien() throws Exception {
         Page<Producto> paginaVacia = new PageImpl<>(List.of(), PageRequest.of(0, 100), 0);
@@ -112,6 +130,9 @@ class ProductoControllerPaginacionTest {
         assertThat(captor.getAllValues().get(1).getPageSize()).isEqualTo(1);
     }
 
+    /**
+     * Verifica que se conserva el filtro de búsqueda y que una página fuera de rango se ajusta a la última página disponible.
+     */
     @Test
     void listarConservaFiltroYAjustaPaginaFueraDeRango() throws Exception {
         Page<Producto> paginaDiezVacia = new PageImpl<>(List.of(), PageRequest.of(9, 10), 25);
@@ -134,6 +155,9 @@ class ProductoControllerPaginacionTest {
         verify(service, times(2)).buscarPorNombrePaginado(eq("Laptop"), any(Pageable.class));
     }
 
+    /**
+     * Verifica que la eliminación individual conserva página, tamaño y filtro en la URL de redirección.
+     */
     @Test
     void eliminarConservaEstadoDePaginacionAlRedirigir() throws Exception {
         when(service.eliminar(5L)).thenReturn(true);
@@ -146,6 +170,12 @@ class ProductoControllerPaginacionTest {
                 .andExpect(redirectedUrl("/productos?page=2&size=15&nombre=Monitor"));
     }
 
+    /**
+     * Crea un producto de prueba con los datos proporcionados.
+     * @param id identificador asignado al producto de prueba.
+     * @param nombre nombre del producto de prueba.
+     * @return producto preparado para las pruebas.
+     */
     private Producto crearProducto(Long id, String nombre) {
         Producto producto = new Producto();
         producto.setId(id);

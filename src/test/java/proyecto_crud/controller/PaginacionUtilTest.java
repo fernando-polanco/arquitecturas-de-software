@@ -6,8 +6,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Pruebas unitarias de {@link PaginacionUtil} para validar parámetros y la construcción de elementos de paginación.
+ */
 class PaginacionUtilTest {
 
+    /**
+     * Comprueba que se usa el tamaño predeterminado cuando el parámetro falta, está vacío o no es numérico.
+     */
     @Test
     void obtenerTamanoPaginaUsaCincoPorDefectoSiFaltaOEsInvalido() {
         assertThat(PaginacionUtil.obtenerTamanoPagina(null)).isEqualTo(5);
@@ -15,6 +21,9 @@ class PaginacionUtilTest {
         assertThat(PaginacionUtil.obtenerTamanoPagina("abc")).isEqualTo(5);
     }
 
+    /**
+     * Comprueba que el tamaño de página queda limitado al intervalo de uno a cien.
+     */
     @Test
     void obtenerTamanoPaginaLimitaEntreUnoYCien() {
         assertThat(PaginacionUtil.obtenerTamanoPagina("0")).isEqualTo(1);
@@ -26,6 +35,9 @@ class PaginacionUtilTest {
         assertThat(PaginacionUtil.obtenerTamanoPagina("999")).isEqualTo(100);
     }
 
+    /**
+     * Comprueba que los números de página nulos, vacíos, no numéricos o no positivos se sustituyen por uno.
+     */
     @Test
     void obtenerNumeroPaginaUsaUnoPorDefectoYRechazaNoPositivos() {
         assertThat(PaginacionUtil.obtenerNumeroPagina(null)).isEqualTo(1);
@@ -36,11 +48,17 @@ class PaginacionUtilTest {
         assertThat(PaginacionUtil.obtenerNumeroPagina("7")).isEqualTo(7);
     }
 
+    /**
+     * Comprueba que no se generan elementos de navegación cuando no hay páginas.
+     */
     @Test
     void construirPaginasConElipsisDevuelveVacioCuandoHayCeroPaginas() {
         assertThat(PaginacionUtil.construirPaginasConElipsis(1, 0)).isEmpty();
     }
 
+    /**
+     * Comprueba que se muestran todos los números cuando hay cinco páginas o menos.
+     */
     @Test
     void construirPaginasConElipsisMuestraTodasSiHayCincoOMenos() {
         List<ElementoPagina> elementos = PaginacionUtil.construirPaginasConElipsis(3, 5);
@@ -53,6 +71,9 @@ class PaginacionUtilTest {
         );
     }
 
+    /**
+     * Comprueba la ventana de páginas cuando la página actual está al inicio de una lista extensa.
+     */
     @Test
     void construirPaginasConElipsisMuestraVentanaInicialConMaximoCincoPaginas() {
         List<ElementoPagina> elementos = PaginacionUtil.construirPaginasConElipsis(2, 10);
@@ -66,6 +87,9 @@ class PaginacionUtilTest {
         );
     }
 
+    /**
+     * Comprueba la ventana de páginas y las elipsis cuando la página actual está en una posición intermedia.
+     */
     @Test
     void construirPaginasConElipsisMuestraVentanaIntermediaConMaximoCincoPaginas() {
         List<ElementoPagina> elementos = PaginacionUtil.construirPaginasConElipsis(5, 10);
@@ -80,6 +104,9 @@ class PaginacionUtilTest {
         );
     }
 
+    /**
+     * Comprueba la ventana de páginas cuando la página actual está cerca del final.
+     */
     @Test
     void construirPaginasConElipsisMuestraVentanaFinalConMaximoCincoPaginas() {
         List<ElementoPagina> elementos = PaginacionUtil.construirPaginasConElipsis(9, 10);
@@ -93,6 +120,9 @@ class PaginacionUtilTest {
         );
     }
 
+    /**
+     * Comprueba que la navegación nunca muestra más de cinco números de página y marca exactamente uno como activo.
+     */
     @Test
     void construirPaginasConElipsisNuncaSuperaCincoPaginasVisibles() {
         for (int total = 1; total <= 20; total++) {
