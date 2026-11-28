@@ -1,7 +1,6 @@
 package proyecto_crud.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -104,15 +103,13 @@ public class ProductoController {
     }
 
     @GetMapping("/productos/editar/{id}")
-    public String editar(@PathVariable Long id, Model model, RedirectAttributes redirect) {
-        Optional<Producto> producto = service.buscarPorId(id);
-        if (producto.isEmpty()) {
-            redirect.addFlashAttribute("error", "El producto no existe");
-            return "redirect:/productos";
-        }
-        model.addAttribute("producto", producto.get());
+    public String editar(@PathVariable Long id, Model model) {
+        Producto producto = service.obtenerPorId(id);
+
+        model.addAttribute("producto", producto);
         model.addAttribute("titulo", "Editar producto");
         model.addAttribute("accion", "/productos/actualizar/" + id);
+
         return "productos/formulario";
     }
 
@@ -122,17 +119,18 @@ public class ProductoController {
                              BindingResult result,
                              Model model,
                              RedirectAttributes redirect) {
-        if (service.buscarPorId(id).isEmpty()) {
-            redirect.addFlashAttribute("error", "El producto no existe");
-            return "redirect:/productos";
-        }
+
+        service.obtenerPorId(id);
+
         if (result.hasErrors()) {
             model.addAttribute("titulo", "Editar producto");
             model.addAttribute("accion", "/productos/actualizar/" + id);
             return "productos/formulario";
         }
+
         producto.setId(id);
         service.guardar(producto);
+
         redirect.addFlashAttribute("exito", "Producto actualizado correctamente");
         return "redirect:/productos";
     }

@@ -1,12 +1,12 @@
 package proyecto_crud.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import proyecto_crud.exception.ProductoNoEncontradoException;
 import proyecto_crud.model.Producto;
 import proyecto_crud.repository.ProductoRepository;
 
@@ -32,8 +32,9 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-    public Optional<Producto> buscarPorId(Long id) {
-        return repository.findById(id);
+    public Producto obtenerPorId(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ProductoNoEncontradoException(id));
     }
 
     @Override
