@@ -1,7 +1,6 @@
 package proyecto_crud.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,8 +12,6 @@ public interface ProductoService {
     Page<Producto> listarPaginado(Pageable paginacion);
 
     Page<Producto> buscarPorNombrePaginado(String nombre, Pageable paginacion);
-
-    Optional<Producto> buscarPorId(Long id);
 
     Producto obtenerPorId(Long id);
 
