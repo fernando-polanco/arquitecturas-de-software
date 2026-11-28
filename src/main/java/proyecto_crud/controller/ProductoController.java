@@ -21,20 +21,42 @@ import proyecto_crud.model.Producto;
 import proyecto_crud.service.ProductoService;
 
 // @Controller hace que reciba las rutas del navegador y devuelve vistas HTML Thymeleaf
+/**
+ * Controlador web que expone las operaciones de gestión de productos y prepara los datos para las vistas Thymeleaf.
+ */
 @Controller
 public class ProductoController {
 
+    /**
+     * Servicio de aplicación utilizado para consultar, guardar y eliminar productos.
+     */
     private final ProductoService service;
 
+    /**
+     * Construye el controlador con el servicio de productos requerido.
+     * @param service servicio que implementa las operaciones de negocio sobre productos.
+     */
     public ProductoController(ProductoService service) {
         this.service = service;
     }
 
+    /**
+     * Redirige la ruta raíz a la pantalla principal de productos.
+     * @return ruta de redirección a {@code /productos}.
+     */
     @GetMapping("/")
     public String inicio() {
         return "redirect:/productos";
     }
 
+    /**
+     * Muestra la lista de productos con búsqueda opcional, paginación y datos de navegación.
+     * @param nombre texto opcional para filtrar productos por nombre.
+     * @param paginaTexto número de página solicitado como texto.
+     * @param tamanoTexto cantidad de registros por página como texto.
+     * @param model modelo utilizado para enviar los datos a la vista.
+     * @return nombre de la vista de listado de productos.
+     */
     @GetMapping("/productos")
     public String listar(
             @RequestParam(name = "nombre", required = false) String nombre,
@@ -78,6 +100,11 @@ public class ProductoController {
         return "productos/lista";
     }
 
+    /**
+     * Prepara el formulario para registrar un producto nuevo.
+     * @param model modelo al que se agregan el producto vacío, el título y la ruta de envío.
+     * @return nombre de la vista del formulario.
+     */
     @GetMapping("/productos/nuevo")
     public String nuevo(Model model) {
         model.addAttribute("producto", new Producto());
@@ -86,6 +113,14 @@ public class ProductoController {
         return "productos/formulario";
     }
 
+    /**
+     * Valida y registra un producto nuevo; si hay errores, vuelve a mostrar el formulario.
+     * @param producto datos del producto recibidos y validados.
+     * @param result resultado de la validación de los campos.
+     * @param model modelo utilizado si es necesario volver al formulario.
+     * @param redirect atributos temporales para mostrar mensajes después de redirigir.
+     * @return vista del formulario si hay errores o redirección al listado si se guarda.
+     */
     @PostMapping("/productos")
     public String crear(@Valid @ModelAttribute("producto") Producto producto,
                         BindingResult result,
@@ -102,6 +137,12 @@ public class ProductoController {
         return "redirect:/productos";
     }
 
+    /**
+     * Busca un producto existente y prepara el formulario de edición.
+     * @param id identificador del producto que se desea editar.
+     * @param model modelo al que se agregan el producto y los datos del formulario.
+     * @return nombre de la vista del formulario.
+     */
     @GetMapping("/productos/editar/{id}")
     public String editar(@PathVariable Long id, Model model) {
         Producto producto = service.obtenerPorId(id);
@@ -113,6 +154,15 @@ public class ProductoController {
         return "productos/formulario";
     }
 
+    /**
+     * Valida y guarda los cambios de un producto existente.
+     * @param id identificador del producto que se actualiza.
+     * @param producto datos modificados recibidos desde el formulario.
+     * @param result resultado de la validación.
+     * @param model modelo utilizado para volver al formulario si hay errores.
+     * @param redirect atributos temporales para comunicar el resultado de la operación.
+     * @return vista del formulario si hay errores o redirección al listado.
+     */
     @PostMapping("/productos/actualizar/{id}")
     public String actualizar(@PathVariable Long id,
                              @Valid @ModelAttribute("producto") Producto producto,
@@ -135,6 +185,15 @@ public class ProductoController {
         return "redirect:/productos";
     }
 
+    /**
+     * Elimina un producto y conserva los parámetros de búsqueda y paginación al regresar al listado.
+     * @param id identificador del producto que se desea eliminar.
+     * @param paginaTexto número de página actual recibido como texto.
+     * @param tamanoTexto tamaño de página actual recibido como texto.
+     * @param nombre filtro de búsqueda actual, si existe.
+     * @param redirect atributos temporales para mensajes y parámetros de redirección.
+     * @return redirección al listado de productos.
+     */
     @PostMapping("/productos/eliminar/{id}")
     public String eliminar(@PathVariable Long id,
                            @RequestParam(name = "page", required = false) String paginaTexto,
@@ -150,6 +209,15 @@ public class ProductoController {
         return "redirect:/productos";
     }
 
+    /**
+     * Elimina los productos seleccionados y conserva el estado de la lista al redirigir.
+     * @param ids identificadores de los productos seleccionados; puede ser nulo o estar vacío.
+     * @param paginaTexto número de página actual recibido como texto.
+     * @param tamanoTexto tamaño de página actual recibido como texto.
+     * @param nombre filtro de búsqueda actual, si existe.
+     * @param redirect atributos temporales para mensajes y parámetros de redirección.
+     * @return redirección al listado de productos.
+     */
     @PostMapping("/productos/eliminar-seleccionados")
     public String eliminarSeleccionados(@RequestParam(name = "ids", required = false) List<Long> ids,
                                         @RequestParam(name = "page", required = false) String paginaTexto,
@@ -167,6 +235,13 @@ public class ProductoController {
         return "redirect:/productos";
     }
 
+    /**
+     * Obtiene una página de productos ordenada por identificador, aplicando el filtro de nombre cuando corresponde.
+     * @param nombreBuscado filtro opcional por nombre; {@code null} solicita todos los productos.
+     * @param indicePagina índice de página basado en cero.
+     * @param tamanoPagina cantidad de registros por página.
+     * @return página de productos resultante.
+     */
     private Page<Producto> consultarPagina(String nombreBuscado, int indicePagina, int tamanoPagina) {
         Pageable paginacion = PageRequest.of(indicePagina, tamanoPagina, Sort.by("id").ascending());
         if (nombreBuscado == null) {
@@ -175,6 +250,13 @@ public class ProductoController {
         return service.buscarPorNombrePaginado(nombreBuscado, paginacion);
     }
 
+    /**
+     * Agrega a la redirección los parámetros válidos de paginación y búsqueda para conservar el estado del listado.
+     * @param redirect objeto que acumula atributos de redirección.
+     * @param paginaTexto número de página recibido como texto.
+     * @param tamanoTexto tamaño de página recibido como texto.
+     * @param nombre filtro de nombre recibido desde la solicitud.
+     */
     private void agregarParametrosPaginacion(RedirectAttributes redirect,
                                              String paginaTexto,
                                              String tamanoTexto,
